@@ -1,0 +1,130 @@
+.jukebox-animation {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.jukebox {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #250101;
+    color: #c5a880;
+    font-family: sans-serif;
+}
+
+.jukebox label {
+    display: inline-block;
+    background-color: #250101;
+    padding: 16px;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    width: 300px;
+    border-radius: 10px;
+    border: 1px solid #c5a880;
+    text-align: center;
+}
+
+.jukebox ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.jukebox ul li {
+    list-style-type: none;
+}
+
+.jukebox .btn {
+    background-color: #250101;
+    border-radius: 10px;
+    color: #c5a880;
+    border: 1px solid #c5a880;
+    padding: 16px;
+    width: 300px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.jukebox .separator {
+    font-weight: bold;
+    text-align: center;
+    width: 300px;
+    margin: 16px 0px;
+    color: #a07676;
+}
+
+.jukebox .title {
+    color: #c5a880;
+    font-weight: bold;
+    font-size: 2.25rem;
+    margin-bottom: 16px;
+}
+
+.jukebox .text-loading {
+    font-size: 2rem;
+}
+
+#backButton {
+    display: none;
+    position: fixed;
+    bottom: 50px;
+    left: 20px;
+    background-color: red;
+    border-radius: 10px;
+    color: #c5a880;
+    border: 1px solid #c5a880;
+    padding: 10px 20px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.jukebox #overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+    background: #250101;
+}
+
+.jukebox .navigation-container {
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+    margin-top: 16px;
+}
+
+.jukebox .nav-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jukebox .nav-button img {
+    width: 50px;
+    height: 50px;
+    transition: opacity 0.3s ease;
+}
+
+.jukebox .nav-button:hover {
+    transform: scale(1.2);
+}
+
+.jukebox .nav-button:hover img {
+    filter: brightness(1.2);
+}
