@@ -1,0 +1,36 @@
+{
+    "albums": {
+        "Deepblue": "深蓝者",
+        "Datura": "曼陀罗",
+        "Scavenger": "拾荒者"
+    },
+    "songs": {
+        "Deepblue": {
+            "Melancholy Sunshine": "忧郁的晴朗",
+            "Knight Errant": "游侠",
+            "Journey": "途",
+            "Primordial Theater": "洪荒剧场",
+            "Lost Glacier": "冰川消失那天",
+            "Magnificent Life": "人生海海",
+            "Stars Light You Up": "变成星星照亮你"
+        },
+        "Datura": {
+            "Datura": "曼陀罗", 
+            "Believer": "信者", 
+            "Moonlight": "月夜的名", 
+            "Time To Leave": "马上就离开", 
+            "Unfinished Journey": "未完成的旅行", 
+            "Pressure": "迫", 
+            "Chase": "追", 
+            "Bad": "坏", 
+            "No1 Player": "头号玩家"
+        },
+        "Scavenger": {
+            "Can You Hear Me": "聑",
+            "Unchained": "无碍",
+            "Going Off": "了",
+            "90S": "",
+            "Next": "慢走不送"
+        }
+    }
+}

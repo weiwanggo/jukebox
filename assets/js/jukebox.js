@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
     window.loadAlbum = function (albumName) {
         loadAlbumOverlay(albumName); // Use the same function to load albums dynamically
     };
+
+    loadAlbumOverlay();
     document.getElementById("backButton").addEventListener("click", stopAudio);
 });
 

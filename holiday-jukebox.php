@@ -14,36 +14,56 @@ if (!defined('ABSPATH')) {
 function jukebox_shortcode() {
     $albums = glob(plugin_dir_path(__FILE__) . 'assets/albums/*', GLOB_ONLYDIR);
     $html = '<div id="jukebox-container"><div id="album-html-container" class="jukebox"><div id="album-grid">';
-
+    $mappings = get_name_mappings();
     foreach ($albums as $album) {
         $album_name = basename($album);
         $album_display_name = preg_replace('/^\d+\s*/', '', $album_name);
         $album_file_name = strtolower(str_replace(' ', '_', $album_display_name));
-
+        
+        $album_display_name_zh = $mappings['albums'][$album_display_name];
 
         $album_image = plugin_dir_url(__FILE__) . "assets/images/{$album_file_name}.jpg";
 
         // Album cover with click event to load its overlay
         $html .= "<div class='album-item' onclick=\"loadAlbumOverlay('$album_name')\">";
         $html .= "<img src='$album_image' alt='$album_name cover' class='album-cover'>";
-        $html .= "<p>$album_display_name</p>";
+        $html .= "<p>$album_display_name_zh $album_display_name</p>";
         $html .= "</div>";
     }
 
     $html .= '</div>';
     $html .= '<div id="overlay" style="display:none;"></div>';
-    $html .= '<button id="backButton">Back To Main Menu</button></div></div>';
+    $html .= '<button id="backButton">返回 Back</button></div></div>';
     return $html;
 }
 add_shortcode('jukebox', 'jukebox_shortcode');
+function get_name_mappings() {
+    static $mappings = null; // Use a static variable to cache the mappings during a single request.
 
-function get_album_content() {
-    if (!isset($_GET['album'])) {
-        wp_die('Invalid request');
+    if ($mappings === null) {
+        $file_path = plugin_dir_path(__FILE__) . 'names.json';
+        if (file_exists($file_path)) {
+            $mappings = json_decode(file_get_contents($file_path), true);
+        } else {
+            $mappings = ['albums' => [], 'songs' => []];
+        }
     }
 
-    $album_name = sanitize_text_field($_GET['album']);
+    return $mappings;
+}
+
+
+function get_album_content() {
+    $album_name = isset($_GET['album']) ? sanitize_text_field($_GET['album']) : '';
+
+    if (empty($album_name) || $album_name === "undefined") {
+        $album_dirs = glob(plugin_dir_path(__FILE__) . 'assets/albums/*', GLOB_ONLYDIR);
+        $album_name = !empty($album_dirs) ? basename($album_dirs[0]) : '';
+    }
+
+    $mappings = get_name_mappings();
     $album_display_name = preg_replace('/^\d+\s*/', '', $album_name);
+    $album_display_name_zh = $mappings['albums'][$album_display_name];
     $album_path = plugin_dir_path(__FILE__) . "assets/albums/$album_name";
     $songs = glob("$album_path/*.mp3");
 
@@ -52,20 +72,18 @@ function get_album_content() {
     }
 
     $html = '<ul>';
-    $html .= "<li class='title'>《{$album_display_name}》</li>";
+    $html .= "<li class='title'>《{$album_display_name_zh} {$album_display_name}》</li>";
 
     foreach ($songs as $song) {
         $song_file_name = basename($song, '.mp3');
         $display_name = preg_replace('/^\d+\s*/', '', $song_file_name);
         $file_path = plugin_dir_url(__FILE__) . "assets/albums/$album_name/$song_file_name.mp3";
+        $display_name_zh = $mappings['songs'][$album_display_name][$display_name];
 
-        $html .= "<li><button class='btn' type='button' data-filepath='$file_path' onclick='loadAudio(this)'>$display_name</button></li>";
+        $html .= "<li><button class='btn' type='button' data-filepath='$file_path' onclick='loadAudio(this)'>$display_name_zh $display_name</button></li>";
     }
 
     $html .= '</ul>';
-    $html .= '<div class="navigation-container">';
-    $html .= "<button id='homeButton' class='nav-button' onclick=\"window.location.href = '/'\">Home</button>";
-    $html .= '</div>';
 
     echo $html;
     wp_die();
