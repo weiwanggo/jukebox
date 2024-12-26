@@ -57,6 +57,32 @@ function get_name_mappings() {
     return $mappings;
 }
 
+function handle_play_audio() {
+    // Verify if the user is logged in
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'You must be logged in to play audio.']);
+    }
+
+    // Get the current user ID
+    $user_id = get_current_user_id();
+
+    // Check if the user has enough myCred points
+    $required_points = 10; // Points required to play
+    $user_points = mycred_get_users_balance($user_id);
+
+    if ($user_points < $required_points) {
+        wp_send_json_error(['message' => 'You do not have enough points to play this audio.']);
+    }
+
+    // Deduct points from the user's balance
+    mycred_subtract('audio_play', $user_id, $required_points, 'Audio play deduction');
+
+    // Return a success response
+    wp_send_json_success();
+}
+add_action('wp_ajax_play_jukebox_audio', 'handle_play_audio');
+add_action('wp_ajax_nopriv_play_jukebox_audio', 'handle_play_audio');
+
 
 function ajax_get_album_content() {
     $album_name = isset($_GET['album']) ? sanitize_text_field($_GET['album']) : '';
@@ -172,7 +198,7 @@ function jukebox_scripts() {
     
     //wp_enqueue_script('jukebox-script', plugin_dir_url(__FILE__) . 'assets/js/jukebox.js', array(), '1.0', true);
     //wp_enqueue_script('album-script', plugin_dir_url(__FILE__) . 'assets/js/load_album.js', array(), '1.0', true);
-    wp_enqueue_script('jukebox-script', plugin_dir_url(__FILE__) . 'assets/js/jukebox.js', array(), '1.0', true);
+    wp_enqueue_script('jukebox-script', plugin_dir_url(__FILE__) . 'assets/js/jukebox.js', array('jquery'), '1.0', true);
     wp_enqueue_style('jukebox-style', plugin_dir_url(__FILE__) . 'assets/css/jukebox.css', array(), '1.0', 'all');
 
     wp_localize_script('jukebox-script', 'ajaxData', array(

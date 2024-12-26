@@ -156,31 +156,53 @@ function animate(time) {
     composer.render();
     animationFrameId = requestAnimationFrame(animate);
 }
+
 function loadAudio(button) {
-    listener.context.resume().then(() => {
-        var audioSrc = button.getAttribute('data-filepath');
+    var audioSrc = button.getAttribute('data-filepath');
 
-        // Check if the audio has a valid currentSrc (indicating the audio is loaded)
-        if (audioSrc) {
-            // Create a new THREE.Audio object
-            audio = new THREE.Audio(listener);
+    // Send AJAX request to verify user and deduct points
+    jQuery.ajax({
+        url: ajaxData.ajaxUrl,
+        type: 'POST',
+        data: {
+            action: 'play_jukebox_audio',
+            file: audioSrc,
+        },
+        success: function (response) {
+            if (response.success) {
+                listener.context.resume().then(() => {
 
-            // Use THREE.AudioLoader to load the audio into the buffer
-            const loader = new THREE.AudioLoader();
-            loader.load(audioSrc, function (buffer) {
-                // Set the loaded buffer to the audio
-                audio.setBuffer(buffer);
-                audio.play();
-                analyser = new THREE.AudioAnalyser(audio, fftSize);
-                init();
-            }, undefined, function (error) {
-                console.error('Error loading audio:', error);
-            });
-        } else {
-            console.error("Audio source (currentSrc) is not set.");
-        }
-    }).catch(err => {
-        console.error('Audio context resume failed:', err);
+                    // Check if the audio has a valid currentSrc (indicating the audio is loaded)
+                    if (audioSrc) {
+                        // Create a new THREE.Audio object
+                        audio = new THREE.Audio(listener);
+
+                        // Use THREE.AudioLoader to load the audio into the buffer
+                        const loader = new THREE.AudioLoader();
+                        loader.load(audioSrc, function (buffer) {
+                            // Set the loaded buffer to the audio
+                            audio.setBuffer(buffer);
+                            audio.play();
+                            analyser = new THREE.AudioAnalyser(audio, fftSize);
+                            init();
+                        }, undefined, function (error) {
+                            console.error('Error loading audio:', error);
+                        });
+                    } else {
+                        console.error("Audio source (currentSrc) is not set.");
+                    }
+                }).catch(err => {
+                    console.error('Audio context resume failed:', err);
+                });
+
+            } else {
+                // Show error message to the user
+                alert(response.data.message);
+            }
+        },
+        error: function () {
+            alert('An error occurred. Please try again.');
+        },
     });
 }
 
