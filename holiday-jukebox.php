@@ -11,92 +11,68 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('JUKEBOX_ALBUMS', [
-    [
-        'title' => '深蓝者',
-        'title_en' => 'Deepblue',
-        'cover' => plugin_dir_url(__FILE__) . 'assets/images/Deepblue.jpg',
-    ],
-    [
-        'title' => '曼陀罗',
-        'title_en' => 'Datura',
-        'cover' => plugin_dir_url(__FILE__) . 'assets/images/Datura.jpg',
-    ],
-    [
-        'title' => '拾荒者',
-        'title_en' => 'Scavenger',
-        'cover' => plugin_dir_url(__FILE__) . 'assets/images/Scavenger.jpg',
-    ],
-]);
+function jukebox_shortcode() {
+    $albums = glob(plugin_dir_path(__FILE__) . 'assets/albums/*', GLOB_ONLYDIR);
+    $html = '<div id="jukebox-container"><div id="album-html-container" class="jukebox"><div id="album-grid">';
+
+    foreach ($albums as $album) {
+        $album_name = basename($album);
+        $album_display_name = preg_replace('/^\d+\s*/', '', $album_name);
+        $album_file_name = strtolower(str_replace(' ', '_', $album_display_name));
 
 
-// Enqueue necessary scripts
+        $album_image = plugin_dir_url(__FILE__) . "assets/images/{$album_file_name}.jpg";
 
+        // Album cover with click event to load its overlay
+        $html .= "<div class='album-item' onclick=\"loadAlbumOverlay('$album_name')\">";
+        $html .= "<img src='$album_image' alt='$album_name cover' class='album-cover'>";
+        $html .= "<p>$album_display_name</p>";
+        $html .= "</div>";
+    }
 
-// Enqueue necessary scripts and localize AJAX URL
-// Hook function to handle AJAX request for logged-in users
-
-/**
- * Jukebox Shortcode Callback
- */
-function jukebox_shortcode()
-{
-    ob_start();
-    generate_jukebox();
-    return ob_get_clean();
+    $html .= '</div>';
+    $html .= '<div id="overlay" style="display:none;"></div>';
+    $html .= '<button id="backButton">Back To Main Menu</button></div></div>';
+    return $html;
 }
-add_shortcode('holiday-jukebox', 'jukebox_shortcode');
+add_shortcode('jukebox', 'jukebox_shortcode');
 
-/**
- * Generate the Jukebox HTML
- */
-/**
- * Generate the Main Jukebox HTML
- */
-function generate_jukebox()
-{
-    $albums = JUKEBOX_ALBUMS;
-    ?>
-    <div class="jukebox-container" id="jukebox-container">
+function get_album_content() {
+    if (!isset($_GET['album'])) {
+        wp_die('Invalid request');
+    }
 
-        <!-- Songs Section -->
-        <div>
-            <div id="album-html-container" class="jukebox">
-                <?php echo load_album("深蓝者"); ?>
-            </div>  
-            <button id="backButton">Back To Main Menu</button>
-        </div>
-    </div>
+    $album_name = sanitize_text_field($_GET['album']);
+    $album_display_name = preg_replace('/^\d+\s*/', '', $album_name);
+    $album_path = plugin_dir_path(__FILE__) . "assets/albums/$album_name";
+    $songs = glob("$album_path/*.mp3");
 
-    <?php
-}
+    if (empty($songs)) {
+        wp_die('No songs found for this album.');
+    }
 
-/**
- * AJAX Handler for Generating Jukebox for an Album
- */
-add_action('wp_ajax_generate_jukebox_for_album', 'generate_jukebox_for_album');
-add_action('wp_ajax_nopriv_generate_jukebox_for_album', 'generate_jukebox_for_album');
+    $html = '<ul>';
+    $html .= "<li class='title'>《{$album_display_name}》</li>";
 
-function generate_jukebox_for_album()
-{
-    $albumTitle = isset($_GET['album_title']) ? sanitize_text_field($_GET['album_title']) : '深蓝者';
+    foreach ($songs as $song) {
+        $song_file_name = basename($song, '.mp3');
+        $display_name = preg_replace('/^\d+\s*/', '', $song_file_name);
+        $file_path = plugin_dir_url(__FILE__) . "assets/albums/$album_name/$song_file_name.mp3";
 
-    load_album($albumTitle);
+        $html .= "<li><button class='btn' type='button' data-filepath='$file_path' onclick='loadAudio(this)'>$display_name</button></li>";
+    }
+
+    $html .= '</ul>';
+    $html .= '<div class="navigation-container">';
+    $html .= "<button id='homeButton' class='nav-button' onclick=\"window.location.href = '/'\">Home</button>";
+    $html .= '</div>';
+
+    echo $html;
     wp_die();
 }
+add_action('wp_ajax_get_album_content', 'get_album_content');
+add_action('wp_ajax_nopriv_get_album_content', 'get_album_content');
 
-function load_album($albumTitle)
-{
-    $albums = JUKEBOX_ALBUMS;
-
-    // Find the album by title
-    foreach ($albums as $album) {
-        if ($album['title'] === $albumTitle) {
-            $template = __DIR__ . '/templates/' . strtolower(str_replace(' ', '_', $album['title_en'])) . '.php';
-            include __DIR__ . '/templates/' . strtolower(str_replace(' ', '_', $album['title_en'])) . '.php';
-        }
-    }
-}
 
 function jukebox_scripts() {
     // Enqueue the main Three.js library
@@ -164,6 +140,8 @@ function jukebox_scripts() {
     );
 
     
+    //wp_enqueue_script('jukebox-script', plugin_dir_url(__FILE__) . 'assets/js/jukebox.js', array(), '1.0', true);
+    //wp_enqueue_script('album-script', plugin_dir_url(__FILE__) . 'assets/js/load_album.js', array(), '1.0', true);
     wp_enqueue_script('jukebox-script', plugin_dir_url(__FILE__) . 'assets/js/jukebox.js', array(), '1.0', true);
     wp_enqueue_style('jukebox-style', plugin_dir_url(__FILE__) . 'assets/css/jukebox.css', array(), '1.0', 'all');
 

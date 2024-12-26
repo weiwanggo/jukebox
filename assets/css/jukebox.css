@@ -1,3 +1,56 @@
+#album-grid {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    justify-content: space-evenly; /* Space items evenly across the container */
+    align-items: center; /* Center items vertically */
+    gap: 20px; /* Add consistent spacing between items */
+    overflow-x: auto; /* Enable horizontal scrolling if content overflows */
+    padding: 10px;
+    margin: 20px 0;
+    scroll-behavior: smooth; /* Optional: Smooth scrolling for better UX */
+}
+
+.album-item {
+    flex: 0 0 auto; /* Prevent flex items from shrinking or growing */
+    text-align: center;
+    cursor: pointer;
+    max-width: 150px;
+}
+
+.album-cover {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.2s ease; /* Add a hover effect */
+}
+
+.album-cover:hover {
+    transform: scale(1.1); /* Enlarge slightly on hover */
+}
+
+
+.song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.song-item {
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.song-cover {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
 .jukebox-animation {
     position: fixed;
     width: 100%;
@@ -7,9 +60,11 @@
 }
 .jukebox {
     margin: 0;
-    height: 100vh;
+    /*height: 100vh;
     overflow: hidden;
-    display: flex;
+    display: flex;*/
+    padding: 50px;
+    min-height: 450px;
     align-items: center;
     justify-content: center;
     background: #250101;
