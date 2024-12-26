@@ -75,7 +75,7 @@ function handle_play_audio() {
     }
 
     // Deduct points from the user's balance
-    mycred_subtract('audio_play', $user_id, $required_points, 'Audio play deduction');
+    mycred_subtract('点歌台', $user_id, $required_points, '点歌台点歌');
 
     // Return a success response
     wp_send_json_success();
