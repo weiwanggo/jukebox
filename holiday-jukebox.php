@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) {
 
 function jukebox_shortcode() {
     $albums = glob(plugin_dir_path(__FILE__) . 'assets/albums/*', GLOB_ONLYDIR);
+    $first_album_name = !empty($albums) ? basename($albums[0]) : ''; 
     $html = '<div id="jukebox-container"><div id="album-html-container" class="jukebox"><div id="album-grid">';
     $mappings = get_name_mappings();
     foreach ($albums as $album) {
@@ -32,7 +33,11 @@ function jukebox_shortcode() {
     }
 
     $html .= '</div>';
-    $html .= '<div id="overlay" style="display:none;"></div>';
+    $html .= '<div id="overlay">';
+    if (!empty($first_album_name)){
+        $html .= get_album_content($first_album_name);
+    }
+    $html .= '</div>';
     $html .= '<button id="backButton">返回 Back</button></div></div>';
     return $html;
 }
@@ -53,7 +58,7 @@ function get_name_mappings() {
 }
 
 
-function get_album_content() {
+function ajax_get_album_content() {
     $album_name = isset($_GET['album']) ? sanitize_text_field($_GET['album']) : '';
 
     if (empty($album_name) || $album_name === "undefined") {
@@ -61,6 +66,16 @@ function get_album_content() {
         $album_name = !empty($album_dirs) ? basename($album_dirs[0]) : '';
     }
 
+    $html = get_album_content($album_name);
+    echo $html;
+
+    wp_die();
+}
+add_action('wp_ajax_get_album_content', 'ajax_get_album_content');
+add_action('wp_ajax_nopriv_get_album_content', 'ajax_get_album_content');
+
+function get_album_content($album_name) {
+    $html = '';
     $mappings = get_name_mappings();
     $album_display_name = preg_replace('/^\d+\s*/', '', $album_name);
     $album_display_name_zh = $mappings['albums'][$album_display_name];
@@ -85,11 +100,8 @@ function get_album_content() {
 
     $html .= '</ul>';
 
-    echo $html;
-    wp_die();
+    return  $html;
 }
-add_action('wp_ajax_get_album_content', 'get_album_content');
-add_action('wp_ajax_nopriv_get_album_content', 'get_album_content');
 
 
 function jukebox_scripts() {
